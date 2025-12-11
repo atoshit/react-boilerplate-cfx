@@ -1,6 +1,7 @@
 type NuiMessage = { action: string; payload?: any }
 
-const resourceName = (window as any).GetParentResourceName
+export const isNuiEnv = !!(window as any).GetParentResourceName
+const resourceName = isNuiEnv
   ? (window as any).GetParentResourceName()
   : 'react-boilerplate-cfx'
 
@@ -28,4 +29,3 @@ window.addEventListener('message', e => {
   if (!set) return
   set.forEach(h => h(msg.payload))
 })
-
