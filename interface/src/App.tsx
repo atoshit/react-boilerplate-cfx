@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { onNuiMessage, sendNui, isNuiEnv } from './lib/nui'
 import { useNuiFocus } from './lib/focus'
@@ -33,22 +32,34 @@ export default function App() {
     }
   }, [setFocused])
   const mod = active ? modules[active.name] : null
-  if (!mod) return null
+  const isDev = import.meta.env.DEV && !isNuiEnv
+  const [bgMode, setBgMode] = useState<'night' | 'day'>('night')
+  const bgNight = isDev ? (import.meta.env.VITE_DEV_BG_NIGHT || '/background_night.png') : null
+  const bgDay = isDev ? (import.meta.env.VITE_DEV_BG_DAY || '/background_day.png') : null
+  const bg = isDev ? (bgMode === 'night' ? bgNight : bgDay) : null
+  useEffect(() => {
+    if (!isDev) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'n') setBgMode('night')
+      if (e.key.toLowerCase() === 'j') setBgMode('day')
+      if (e.key.toLowerCase() === 't') setBgMode(m => (m === 'night' ? 'day' : 'night'))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isDev])
+  if (!isDev && !mod) return null
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-      <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }} className="w-[640px] rounded-xl border border-slate-700 bg-slate-800 shadow-2xl p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="text-xl font-semibold">React NUI</div>
-          <div className="flex gap-2">
-            <div className="text-xs px-2 py-1 rounded bg-slate-700">{focused ? 'Focus' : 'No focus'}</div>
-            <button onClick={() => { setActive(null); setFocused(false); sendNui('react:close') }} className="px-2 py-1 rounded-md bg-rose-600 hover:bg-rose-500 transition">Close</button>
-          </div>
+    <div className="min-h-screen">
+      {isDev && (
+        <div className="fixed inset-0 z-0" onClick={() => setBgMode(m => (m === 'night' ? 'day' : 'night'))}>
+          <div className="w-full h-full bg-center bg-cover cursor-pointer" style={{ backgroundImage: `url('${bg}')` }} />
         </div>
-        <div className="space-y-4">
-          <div className="text-sm text-slate-300">Module: {mod.name}</div>
+      )}
+      {mod && (
+        <div className="min-h-screen flex items-center justify-center relative z-10">
           <mod.Component {...(active?.data || {})} />
         </div>
-      </motion.div>
+      )}
     </div>
   )
 }

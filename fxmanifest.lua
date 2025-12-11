@@ -14,7 +14,13 @@ files {
 
 client_scripts {
   'client/message.lua',
-  'client/focus.lua'
+  'client/focus.lua',
+  'client/init.lua',
+  'client/modules/personnalmenu.lua'
+}
+
+server_scripts {
+  'server/main.lua'
 }
 
 shared_scripts {
