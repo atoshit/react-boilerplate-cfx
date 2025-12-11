@@ -14,8 +14,7 @@ files {
 
 client_scripts {
   'client/message.lua',
-  'client/focus.lua',
-  'client/init.lua'
+  'client/focus.lua'
 }
 
 shared_scripts {
